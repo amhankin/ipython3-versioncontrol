@@ -49,9 +49,9 @@ import sys
 import json
 import os
 import fnmatch
+import importlib
 
-reload(sys)
-sys.setdefaultencoding('utf8')
+importlib.reload(sys)
 THIS_FILE = os.path.abspath(__file__)
 
 def get_notebook_data(path_to_file):
@@ -74,7 +74,7 @@ def write_notebook_data_to_py(notebook_data, out_file_path):
         try:
             cells = notebook_data['cells']
         except KeyError:
-            print "Nbformat is " + str(notebook_data['nbformat']) + ", try the old converter script."
+            print("Nbformat is " + str(notebook_data['nbformat']) + ", try the old converter script.")
             return
 
         for cell in cells:
@@ -90,8 +90,12 @@ def write_notebook_data_to_py(notebook_data, out_file_path):
                         output.write(item)
                 output.write('\n')
 
-def convert_notebook_to_py(input_file_path, skip_if_exists=True):
-    output_file_path = construct_output_py_file_path(input_file_path, skip_if_exists)
+def convert_notebook_to_py(input_file_path, skip_if_exists=True,
+        output_file_path=None):
+    if output_file_path == None:
+        output_file_path = construct_output_py_file_path(input_file_path, skip_if_exists)
+    else:
+        output_file_path = construct_output_py_file_path(output_file_path, skip_if_exists)
     if output_file_path is not None:
         notebook_data = get_notebook_data(input_file_path)
         write_notebook_data_to_py(notebook_data, output_file_path)
@@ -100,7 +104,7 @@ def convert_all_notebook_to_py(directory, skip_if_exists=True):
     for root, dirnames, filenames in os.walk(directory):
         for filename in fnmatch.filter(filenames, '*.ipynb'):
             filename = os.path.abspath(os.path.join(root, filename))
-            print filename
+            print(filename)
             if filename != THIS_FILE:
                 convert_notebook_to_py(filename, skip_if_exists)
 
@@ -111,6 +115,8 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--overwrite', action='store_true', help='Overwrite existing py files', default=False)
     parser.add_argument('-f', '--file', help='Specify an Ipython notebook if you only want to convert one. '
                                        '(This will overwrite default.)')
+    parser.add_argument('-d', '--directory', action='select output directory',
+        help='Overwrite the default output directory', default=None)
     args = parser.parse_args()
 
     if args.file is not None:

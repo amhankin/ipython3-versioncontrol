@@ -41,9 +41,9 @@ import sys
 import json
 import os
 import fnmatch
+import importlib
 
-reload(sys)
-sys.setdefaultencoding('utf8')
+importlib.reload(sys)
 THIS_FILE = os.path.abspath(__file__)
 
 def get_py_data(path_to_file):
@@ -159,13 +159,13 @@ def convert_py_to_notebook(input_file_path, skip_if_exists=True, dry_run=False):
                 output['cells'] = outputcells
                 if not dry_run:
                     write_py_data_to_notebook(output, output_file_path)
-                print "Created Ipython Jupyter notebook file: {}".format(output_file_path)
+                print("Created Ipython Jupyter notebook file: {}".format(output_file_path))
 
 def convert_all_py_to_notebook(directory, skip_if_exists=True, dry_run=False):
     for root, dirnames, filenames in os.walk(directory):
         for filename in fnmatch.filter(filenames, '*.py'):
             filename = os.path.abspath(os.path.join(root, filename))
-            print filename
+            print(filename)
             if filename != THIS_FILE:
                 convert_py_to_notebook(filename, skip_if_exists=skip_if_exists, dry_run=dry_run)
 
